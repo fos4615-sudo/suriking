@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>집수리왕</title>
+  <link rel="stylesheet" href="./styles.css?v=20260417-2">
+</head>
+<body>
+  <div class="page-shell">
+    <nav class="top-nav">
+      <div class="top-nav__brand">
+        <p class="eyebrow">HOME REPAIR MARKETPLACE</p>
+        <strong>집수리왕</strong>
+      </div>
+      <div class="top-nav__menu" id="topNavMenu">
+        <button type="button" class="nav-button" data-page="login">로그인</button>
+        <button type="button" class="nav-button is-active" data-page="home">홈</button>
+        <button type="button" class="nav-button" data-page="admin">관리자 메뉴</button>
+        <button type="button" class="nav-button" data-page="requester">수리요청자 등록</button>
+        <button type="button" class="nav-button" data-page="worker">공사작업자 메뉴</button>
+        <button type="button" class="nav-button" data-page="market">요청 및 입찰 관리</button>
+      </div>
+      <div class="login-status" id="loginStatus"></div>
+    </nav>
+
+    <section class="page-section" data-page="login">
+      <section class="panel login-panel">
+        <div class="panel__header">
+          <div>
+            <p class="section-label">로그인 메뉴</p>
+            <h2>역할별 로그인</h2>
+          </div>
+          <p class="admin-panel__lead">수리요청자와 공사작업자를 구분해서 로그인하고 각자 필요한 메뉴로 이동할 수 있습니다.</p>
+        </div>
+
+        <div class="login-role-tabs" id="loginRoleTabs">
+          <button type="button" class="role-tab is-active" data-role="requester">수리요청자 로그인</button>
+          <button type="button" class="role-tab" data-role="worker">공사작업자 로그인</button>
+        </div>
+
+        <form id="loginForm" class="request-form">
+          <input type="hidden" name="role" id="loginRole" value="requester">
+          <label>
+            이름
+            <input type="text" name="name" placeholder="예: 김민수 또는 튼튼집수리" required>
+          </label>
+          <label>
+            로그인 ID
+            <input type="text" name="loginId" placeholder="예: requester01 / worker01" required>
+          </label>
+          <label class="full">
+            비밀번호
+            <input type="password" name="password" placeholder="예: 1234" required>
+          </label>
+          <div class="login-guide full">
+            <strong>테스트 계정</strong>
+            <small>수리요청자: `requester01 / 1234` 또는 공사작업자: `worker01 / 1234`</small>
+          </div>
+          <button type="submit" class="primary-button full">로그인</button>
+        </form>
+        <div id="loginMessage" class="login-message"></div>
+      </section>
+    </section>
+
+    <section class="page-section is-active" data-page="home">
+      <header class="hero">
+        <div class="hero__copy">
+          <p class="eyebrow">HOME REPAIR MARKETPLACE</p>
+          <h1>집수리왕</h1>
+          <p class="hero__lead">
+            수리요청자가 수리 요청과 희망 예산을 등록하면 여러 공사작업자가 입찰하고,
+            수리요청자가 직접 낙찰자를 선택한 뒤 공사 진행 상태를 확인하며 대금을 지급하는 플랫폼입니다.
+          </p>
+          <div class="hero__stats" id="summaryCards"></div>
+        </div>
+        <div class="hero__panel">
+          <h2>거래 흐름</h2>
+          <ol class="timeline">
+            <li>수리요청자가 수리 요청과 지급 가능 금액 등록</li>
+            <li>공사작업자들이 입찰가와 작업 조건 제안</li>
+            <li>수리요청자가 작업자를 선택해 낙찰 확정</li>
+            <li>요청, 낙찰, 공사중, 공사완료 단계별 확인</li>
+            <li>최종 확인 후 작업자에게 대금 지급 처리</li>
+          </ol>
+        </div>
+      </header>
+
+      <section class="panel category-panel">
+        <div class="panel__header">
+          <div>
+            <p class="section-label">수리 분야 선택</p>
+            <h2>분야별 공사작업자 찾기</h2>
+          </div>
+          <p class="admin-panel__lead">분야를 누르면 공급자 목록이 보이고, 작업자를 선택해 바로 수리를 요청하며 공사금액을 합의할 수 있습니다.</p>
+        </div>
+        <div id="categoryMenu" class="category-grid"></div>
+      </section>
+
+      <section class="home-market-layout">
+        <section class="panel">
+          <div class="panel__header">
+            <div>
+              <p class="section-label">분야별 공급자</p>
+              <h2 id="homeWorkerTitle">공사작업자 리스트</h2>
+            </div>
+          </div>
+          <div id="homeWorkerList" class="supplier-list"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel__header">
+            <div>
+              <p class="section-label">바로 요청 / 금액 합의</p>
+              <h2>선택 작업자에게 바로 요청</h2>
+            </div>
+          </div>
+          <div id="selectedWorkerSummary" class="selected-worker-summary empty-state">왼쪽에서 분야와 작업자를 먼저 선택해 주세요.</div>
+          <form id="quickRequestForm" class="request-form">
+            <label>
+              선택 분야
+              <input type="text" name="category" id="quickCategory" readonly>
+            </label>
+            <label>
+              선택 작업자
+              <input type="text" name="workerName" id="quickWorkerName" readonly>
+            </label>
+            <label>
+              작업자 연락처
+              <input type="text" name="workerPhone" id="quickWorkerPhone" readonly>
+            </label>
+            <label>
+              수리요청자 이름
+              <input type="text" name="requester" placeholder="예: 김민수" required>
+            </label>
+            <label>
+              요청 제목
+              <input type="text" name="title" placeholder="예: 욕실 누수 긴급 보수" required>
+            </label>
+            <label>
+              지역
+              <input type="text" name="location" placeholder="예: 서울 송파구" required>
+            </label>
+            <label class="full">
+              수리 내용
+              <textarea name="description" rows="4" placeholder="필요한 수리 범위와 요청 사항을 입력하세요." required></textarea>
+            </label>
+            <label>
+              희망 공사금액(원)
+              <input type="number" name="desiredAmount" min="0" step="10000" placeholder="예: 300000" required>
+            </label>
+            <label>
+              합의 공사금액(원)
+              <input type="number" name="agreedAmount" min="0" step="10000" placeholder="예: 280000" required>
+            </label>
+            <label>
+              희망 완료일
+              <input type="date" name="dueDate" required>
+            </label>
+            <label class="full">
+              합의 메모
+              <input type="text" name="note" placeholder="예: 자재 포함, 토요일 오전 시공 합의" required>
+            </label>
+            <label class="full">
+              요청 사진 최대 2장
+              <input type="file" id="quickRequestImagesInput" name="images" accept="image/*" multiple>
+            </label>
+            <div id="quickRequestImagePreview" class="image-preview-grid full"></div>
+            <button type="submit" class="primary-button full">바로 요청 생성하기</button>
+          </form>
+        </section>
+      </section>
+    </section>
+
+    <section class="page-section" data-page="admin">
+      <section class="panel admin-panel">
+        <div class="panel__header admin-panel__header">
+          <div>
+            <p class="section-label">관리자 메뉴</p>
+            <h2>수리요청자 / 공사작업자 / 진행 현황</h2>
+          </div>
+          <p class="admin-panel__lead">관리자가 전체 거래 현황을 한 줄씩 빠르게 확인하는 요약 화면입니다.</p>
+        </div>
+        <div id="adminSummary" class="admin-summary"></div>
+        <div class="admin-table-wrap">
+          <div class="admin-table admin-table--head">
+            <span>요청명</span>
+            <span>수리요청자</span>
+            <span>선택 작업자</span>
+            <span>현재 진행</span>
+            <span>입찰 현황</span>
+            <span>예산 / 낙찰가</span>
+            <span>관리 메모</span>
+          </div>
+          <div id="adminStatusList" class="admin-status-list"></div>
+        </div>
+      </section>
+    </section>
+
+    <section class="page-section" data-page="requester">
+      <section class="panel">
+        <div class="panel__header">
+          <div>
+            <p class="section-label">수리요청자 등록</p>
+            <h2>수리 요청 올리기</h2>
+          </div>
+          <button id="seedDemoBtn" class="ghost-button">데모 데이터 다시 불러오기</button>
+        </div>
+
+        <form id="requestForm" class="request-form">
+          <label>
+            공사 분야
+            <select name="category" required>
+              <option value="">분야 선택</option>
+              <option value="누수·방수">누수·방수</option>
+              <option value="전기·조명">전기·조명</option>
+              <option value="배관·설비">배관·설비</option>
+              <option value="도배·도장">도배·도장</option>
+              <option value="목공·바닥재">목공·바닥재</option>
+              <option value="냉난방·보일러">냉난방·보일러</option>
+              <option value="창호·새시">창호·새시</option>
+              <option value="철거·리모델링">철거·리모델링</option>
+            </select>
+          </label>
+          <label>
+            요청 제목
+            <input type="text" name="title" placeholder="예: 욕실 타일 보수" required>
+          </label>
+          <label>
+            지역
+            <input type="text" name="location" placeholder="예: 서울 송파구" required>
+          </label>
+          <label class="full">
+            수리 내용
+            <textarea name="description" rows="4" placeholder="필요한 수리 범위와 일정 등을 입력하세요." required></textarea>
+          </label>
+          <label>
+            지급 가능 예산(원)
+            <input type="number" name="budget" min="0" step="10000" placeholder="예: 350000" required>
+          </label>
+          <label>
+            희망 완료일
+            <input type="date" name="dueDate" required>
+          </label>
+          <label>
+            수리요청자 이름
+            <input type="text" name="requester" placeholder="예: 김민수" required>
+          </label>
+          <label class="full">
+            요청 사진 최대 2장
+            <input type="file" id="requestImagesInput" name="images" accept="image/*" multiple>
+          </label>
+          <div id="requestImagePreview" class="image-preview-grid full"></div>
+          <button type="submit" class="primary-button full">요청 등록하기</button>
+        </form>
+      </section>
+    </section>
+
+    <section class="page-section" data-page="worker">
+      <div class="layout layout--workers">
+        <section class="panel">
+          <div class="panel__header">
+            <div>
+              <p class="section-label">공사작업자 메뉴</p>
+              <h2>작업자 소개 및 실적 등록</h2>
+            </div>
+          </div>
+
+          <form id="workerForm" class="request-form">
+            <label>
+              작업자 이름
+              <input type="text" name="name" placeholder="예: 튼튼집수리" required>
+            </label>
+            <label>
+              연락처
+              <input type="text" name="phone" placeholder="예: 010-1234-5678" required>
+            </label>
+            <label>
+              분야 분류
+              <select name="category" required>
+                <option value="">분야 선택</option>
+                <option value="누수·방수">누수·방수</option>
+                <option value="전기·조명">전기·조명</option>
+                <option value="배관·설비">배관·설비</option>
+                <option value="도배·도장">도배·도장</option>
+                <option value="목공·바닥재">목공·바닥재</option>
+                <option value="냉난방·보일러">냉난방·보일러</option>
+                <option value="창호·새시">창호·새시</option>
+                <option value="철거·리모델링">철거·리모델링</option>
+              </select>
+            </label>
+            <label>
+              전문 분야
+              <input type="text" name="specialty" placeholder="예: 욕실, 타일, 누수보수" required>
+            </label>
+            <label>
+              활동 지역
+              <input type="text" name="coverage" placeholder="예: 서울 송파구, 강동구" required>
+            </label>
+            <label class="full">
+              작업자 소개
+              <textarea name="intro" rows="4" placeholder="작업 스타일과 강점을 입력하세요." required></textarea>
+            </label>
+            <label>
+              누적 완료 건수
+              <input type="number" name="completedJobs" min="0" placeholder="예: 128" required>
+            </label>
+            <label>
+              대표 실적 요약
+              <input type="text" name="performance" placeholder="예: 욕실 리모델링 48건 완료" required>
+            </label>
+            <label class="full">
+              작업자 사진 최대 2장
+              <input type="file" id="workerImagesInput" name="images" accept="image/*" multiple>
+            </label>
+            <div id="workerImagePreview" class="image-preview-grid full"></div>
+            <button type="submit" class="primary-button full">공사작업자 등록하기</button>
+          </form>
+        </section>
+
+        <section class="panel">
+          <div class="panel__header">
+            <div>
+              <p class="section-label">작업자 조회</p>
+              <h2>등록된 공사작업자 실적</h2>
+            </div>
+          </div>
+          <div id="workerList" class="worker-list"></div>
+        </section>
+      </div>
+    </section>
+
+    <section class="page-section" data-page="market">
+      <section class="panel">
+        <div class="panel__header">
+          <div>
+            <p class="section-label">플랫폼 현황</p>
+            <h2>요청 및 입찰 관리</h2>
+          </div>
+          <div class="legend">
+            <span class="chip chip--request">요청</span>
+            <span class="chip chip--awarded">낙찰</span>
+            <span class="chip chip--progress">공사중</span>
+            <span class="chip chip--done">공사완료</span>
+            <span class="chip chip--paid">입금완료</span>
+          </div>
+        </div>
+        <div id="requestList" class="request-list"></div>
+      </section>
+    </section>
+  </div>
+
+  <template id="requestCardTemplate">
+    <article class="request-card">
+      <div class="request-card__top">
+        <div>
+          <div class="request-card__meta">
+            <span class="status-badge"></span>
+            <span class="request-id"></span>
+          </div>
+          <h3 class="request-title"></h3>
+          <p class="request-desc"></p>
+        </div>
+        <div class="request-card__price">
+          <span>지급 가능 예산</span>
+          <strong class="request-budget"></strong>
+        </div>
+      </div>
+
+      <div class="request-card__grid">
+        <div class="info-box">
+          <span>수리요청자</span>
+          <strong class="request-requester"></strong>
+        </div>
+        <div class="info-box">
+          <span>지역</span>
+          <strong class="request-location"></strong>
+        </div>
+        <div class="info-box">
+          <span>희망 완료일</span>
+          <strong class="request-due"></strong>
+        </div>
+        <div class="info-box">
+          <span>현재 최저 입찰가</span>
+          <strong class="request-lowest"></strong>
+        </div>
+      </div>
+
+      <div class="request-images"></div>
+
+      <div class="request-card__actions">
+        <div class="workflow-box"></div>
+        <div class="approval-box"></div>
+        <div class="stage-buttons"></div>
+      </div>
+
+      <div class="subpanel">
+        <div class="subpanel__header">
+          <h4>작업자 입찰 등록</h4>
+          <p>예산 이하 입찰을 유도하고, 수리요청자가 낙찰자를 선택할 수 있습니다.</p>
+        </div>
+        <div class="awarded-summary"></div>
+        <form class="bid-form">
+          <input type="text" name="workerName" placeholder="작업자 이름" required>
+          <input type="text" name="workerPhone" placeholder="연락처" required>
+          <input type="number" name="amount" min="0" step="10000" placeholder="입찰 금액(원)" required>
+          <input type="text" name="note" placeholder="작업 조건 또는 강점" required>
+          <button type="submit" class="primary-button">입찰하기</button>
+        </form>
+      </div>
+
+      <div class="subpanel">
+        <div class="subpanel__header">
+          <h4>입찰 목록</h4>
+          <p class="award-caption"></p>
+        </div>
+        <div class="bid-list"></div>
+      </div>
+    </article>
+  </template>
+
+  <template id="bidItemTemplate">
+    <div class="bid-item">
+      <div class="bid-item__main">
+        <div>
+          <div class="bid-item__title-row">
+            <strong class="bid-worker"></strong>
+            <span class="bid-badge">입찰</span>
+          </div>
+          <p class="bid-note"></p>
+          <small class="bid-phone"></small>
+        </div>
+        <div class="bid-item__price"></div>
+      </div>
+      <div class="bid-item__actions">
+        <button class="ghost-button select-bid-btn">이 작업자 낙찰</button>
+      </div>
+    </div>
+  </template>
+
+  <template id="workerCardTemplate">
+    <article class="worker-card">
+      <div class="worker-card__top">
+        <div>
+          <h3 class="worker-name"></h3>
+          <p class="worker-category"></p>
+          <p class="worker-specialty"></p>
+        </div>
+        <div class="worker-metric"></div>
+      </div>
+      <div class="worker-card__grid">
+        <div class="info-box">
+          <span>연락처</span>
+          <strong class="worker-phone"></strong>
+        </div>
+        <div class="info-box">
+          <span>활동 지역</span>
+          <strong class="worker-coverage"></strong>
+        </div>
+        <div class="info-box">
+          <span>대표 실적</span>
+          <strong class="worker-performance"></strong>
+        </div>
+      </div>
+      <p class="worker-intro"></p>
+      <div class="worker-images"></div>
+    </article>
+  </template>
+
+  <script src="./app.js?v=20260417-2"></script>
+</body>
+</html>
