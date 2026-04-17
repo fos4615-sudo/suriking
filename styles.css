@@ -274,27 +274,12 @@ select {
   color: #fff;
 }
 
-.login-guide,
 .login-message {
   padding: 14px 16px;
   border-radius: 16px;
   border: 1px solid rgba(98, 77, 47, 0.1);
   background: rgba(255, 251, 244, 0.92);
-}
-
-.login-guide strong,
-.login-guide small,
-.login-message {
   display: block;
-}
-
-.login-guide small {
-  margin-top: 6px;
-  color: var(--muted);
-  line-height: 1.6;
-}
-
-.login-message {
   margin-top: 16px;
   color: var(--muted);
   line-height: 1.6;
@@ -308,6 +293,49 @@ select {
 .login-message.is-error {
   color: #b4412f;
   background: rgba(180, 65, 47, 0.1);
+}
+
+.signup-category-field {
+  margin: 0;
+  padding: 16px;
+  border: 1px solid rgba(98, 77, 47, 0.14);
+  border-radius: 18px;
+  background: rgba(255, 251, 244, 0.88);
+}
+
+.signup-category-field legend {
+  padding: 0 8px;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.signup-category-field legend span {
+  color: var(--accent-dark);
+  font-size: 0.86rem;
+}
+
+.signup-category-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.signup-category-grid label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(98, 77, 47, 0.1);
+  color: var(--text);
+}
+
+.signup-category-grid input {
+  width: auto;
+  padding: 0;
 }
 
 .category-panel {
@@ -476,12 +504,73 @@ select {
   line-height: 1.5;
 }
 
+.admin-action-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px solid rgba(98, 77, 47, 0.12);
+  border-radius: 18px;
+  background: rgba(255, 252, 247, 0.82);
+}
+
+.admin-action-panel strong,
+.admin-action-panel small {
+  display: block;
+}
+
+.admin-action-panel small {
+  margin-top: 6px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.admin-action-panel .primary-button {
+  flex: 0 0 auto;
+}
+
+.admin-directory-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.admin-directory {
+  min-width: 0;
+}
+
+.admin-directory__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+
+.admin-directory__header h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.admin-directory__header p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  line-height: 1.5;
+  font-size: 0.9rem;
+}
+
 .admin-table-wrap {
   margin-top: 18px;
   border-radius: 22px;
   overflow: hidden;
   border: 1px solid rgba(98, 77, 47, 0.1);
   background: rgba(255, 252, 247, 0.76);
+}
+
+.admin-table-wrap--directory {
+  margin-top: 0;
 }
 
 .admin-status-list {
@@ -493,6 +582,11 @@ select {
   grid-template-columns: 1.35fr 0.9fr 1fr 0.8fr 0.9fr 1fr 1.2fr;
   gap: 16px;
   padding: 16px 18px;
+}
+
+.admin-table--requesters,
+.admin-table--workers {
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
 }
 
 .admin-table--head {
@@ -773,7 +867,7 @@ select:focus {
 
 .approval-pending strong,
 .approval-pending small,
-.approval-complete strong,
+approval-complete strong,
 .approval-complete small {
   display: block;
 }
@@ -1009,6 +1103,10 @@ select:focus {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .admin-directory-grid {
+    grid-template-columns: 1fr;
+  }
+
   .admin-table-wrap {
     overflow-x: auto;
   }
@@ -1043,6 +1141,7 @@ select:focus {
 
   .hero__stats,
   .admin-summary,
+  .admin-directory-grid,
   .category-grid,
   .image-preview-grid,
   .request-images,
@@ -1059,6 +1158,7 @@ select:focus {
   .supplier-card__top,
   .request-card__actions,
   .bid-item__main,
+  .admin-action-panel,
   .panel__header,
   .subpanel__header,
   .admin-panel__header {
