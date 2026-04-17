@@ -2,6 +2,15 @@ const REQUEST_STORAGE_KEY = "jipsuriwang-requests-v3";
 const WORKER_STORAGE_KEY = "jipsuriwang-workers-v2";
 const AUTH_STORAGE_KEY = "jipsuriwang-auth-v1";
 const STAGES = ["요청", "낙찰", "공사중", "공사완료", "입금완료"];
+
+function createId() {
+  if (globalThis.crypto?.randomUUID) {
+    return globalThis.crypto.randomUUID();
+  }
+
+  return `id-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+}
+
 const CATEGORY_CONFIG = [
   { id: "누수·방수", icon: "💧" },
   { id: "전기·조명", icon: "⚡" },
@@ -15,7 +24,7 @@ const CATEGORY_CONFIG = [
 
 const demoRequests = [
   {
-    id: crypto.randomUUID(),
+    id: createId(),
     category: "누수·방수",
     title: "욕실 타일 보수 및 실리콘 교체",
     location: "서울 송파구 잠실동",
@@ -28,13 +37,13 @@ const demoRequests = [
     customerConfirmed: false,
     awardedBidId: null,
     bids: [
-      { id: crypto.randomUUID(), workerName: "강도윤 타일", workerPhone: "010-3345-2291", amount: 390000, note: "타일 보수 후 방수 실리콘까지 한 번에 마감합니다." },
-      { id: crypto.randomUUID(), workerName: "튼튼집수리", workerPhone: "010-7741-8820", amount: 360000, note: "1일 내 작업 가능하며 폐기물 정리 포함입니다." },
-      { id: crypto.randomUUID(), workerName: "송파홈케어", workerPhone: "010-5512-7784", amount: 405000, note: "욕실 부분 철거 없이 보수 위주로 신속 시공합니다." }
+      { id: createId(), workerName: "강도윤 타일", workerPhone: "010-3345-2291", amount: 390000, note: "타일 보수 후 방수 실리콘까지 한 번에 마감합니다." },
+      { id: createId(), workerName: "튼튼집수리", workerPhone: "010-7741-8820", amount: 360000, note: "1일 내 작업 가능하며 폐기물 정리 포함입니다." },
+      { id: createId(), workerName: "송파홈케어", workerPhone: "010-5512-7784", amount: 405000, note: "욕실 부분 철거 없이 보수 위주로 신속 시공합니다." }
     ]
   },
   {
-    id: crypto.randomUUID(),
+    id: createId(),
     category: "도배·도장",
     title: "거실 도배와 누수 흔적 보수",
     location: "경기 성남시 분당구",
@@ -47,13 +56,13 @@ const demoRequests = [
     customerConfirmed: false,
     awardedBidId: null,
     bids: [
-      { id: crypto.randomUUID(), workerName: "도배마스터", workerPhone: "010-9352-4481", amount: 760000, note: "누수 흔적 퍼티 보수와 친환경 벽지 시공 포함입니다." },
-      { id: crypto.randomUUID(), workerName: "분당도배라인", workerPhone: "010-2209-1045", amount: 735000, note: "주말 양일 작업 가능하며 천장 프라이머 처리까지 진행합니다." },
-      { id: crypto.randomUUID(), workerName: "깔끔인테리어", workerPhone: "010-8167-9922", amount: 770000, note: "오염 방지 커버링과 폐자재 수거까지 포함합니다." }
+      { id: createId(), workerName: "도배마스터", workerPhone: "010-9352-4481", amount: 760000, note: "누수 흔적 퍼티 보수와 친환경 벽지 시공 포함입니다." },
+      { id: createId(), workerName: "분당도배라인", workerPhone: "010-2209-1045", amount: 735000, note: "주말 양일 작업 가능하며 천장 프라이머 처리까지 진행합니다." },
+      { id: createId(), workerName: "깔끔인테리어", workerPhone: "010-8167-9922", amount: 770000, note: "오염 방지 커버링과 폐자재 수거까지 포함합니다." }
     ]
   },
   {
-    id: crypto.randomUUID(),
+    id: createId(),
     category: "배관·설비",
     title: "주방 싱크대 수전 교체와 배수 점검",
     location: "서울 마포구 공덕동",
@@ -66,13 +75,13 @@ const demoRequests = [
     customerConfirmed: false,
     awardedBidId: null,
     bids: [
-      { id: crypto.randomUUID(), workerName: "맑은배관서비스", workerPhone: "010-3412-8840", amount: 190000, note: "수전 자재 포함 가능하며 배수관 내시경 점검 가능합니다." },
-      { id: crypto.randomUUID(), workerName: "공덕설비119", workerPhone: "010-6618-7411", amount: 175000, note: "당일 방문 가능하고 간단한 배수관 세척 서비스 포함입니다." },
-      { id: crypto.randomUUID(), workerName: "마포홈리페어", workerPhone: "010-9013-2287", amount: 210000, note: "국산 수전 제품 기준 교체 및 누수 테스트까지 진행합니다." }
+      { id: createId(), workerName: "맑은배관서비스", workerPhone: "010-3412-8840", amount: 190000, note: "수전 자재 포함 가능하며 배수관 내시경 점검 가능합니다." },
+      { id: createId(), workerName: "공덕설비119", workerPhone: "010-6618-7411", amount: 175000, note: "당일 방문 가능하고 간단한 배수관 세척 서비스 포함입니다." },
+      { id: createId(), workerName: "마포홈리페어", workerPhone: "010-9013-2287", amount: 210000, note: "국산 수전 제품 기준 교체 및 누수 테스트까지 진행합니다." }
     ]
   },
   {
-    id: crypto.randomUUID(),
+    id: createId(),
     category: "창호·새시",
     title: "방충망 교체와 창문 틈새 보수",
     location: "인천 연수구 송도동",
@@ -85,12 +94,12 @@ const demoRequests = [
     customerConfirmed: false,
     awardedBidId: null,
     bids: [
-      { id: crypto.randomUUID(), workerName: "송도창호케어", workerPhone: "010-1187-5460", amount: 280000, note: "미세방충망 교체와 틈새 실링 보강 작업을 함께 진행합니다." },
-      { id: crypto.randomUUID(), workerName: "연수구집닥터", workerPhone: "010-7315-6628", amount: 295000, note: "방충망 샘플 지참 후 현장 맞춤 시공 가능합니다." }
+      { id: createId(), workerName: "송도창호케어", workerPhone: "010-1187-5460", amount: 280000, note: "미세방충망 교체와 틈새 실링 보강 작업을 함께 진행합니다." },
+      { id: createId(), workerName: "연수구집닥터", workerPhone: "010-7315-6628", amount: 295000, note: "방충망 샘플 지참 후 현장 맞춤 시공 가능합니다." }
     ]
   },
   {
-    id: crypto.randomUUID(),
+    id: createId(),
     category: "냉난방·보일러",
     title: "보일러 배관 점검 및 온수 불량 수리",
     location: "대전 유성구 봉명동",
@@ -103,16 +112,16 @@ const demoRequests = [
     customerConfirmed: true,
     awardedBidId: null,
     bids: [
-      { id: crypto.randomUUID(), workerName: "유성보일러전문", workerPhone: "010-4991-3302", amount: 520000, note: "배관 에어빼기와 순환펌프 점검 포함, 부품 교체 시 추가 설명드립니다." },
-      { id: crypto.randomUUID(), workerName: "따뜻한집설비", workerPhone: "010-6577-1843", amount: 540000, note: "야간 긴급 점검 가능하며 온수 라인 테스트 장비 보유 중입니다." },
-      { id: crypto.randomUUID(), workerName: "대전홈닥터", workerPhone: "010-2874-9156", amount: 550000, note: "보일러 제조사별 수리 경험이 많고 작업 후 1주 추적 점검 가능합니다." }
+      { id: createId(), workerName: "유성보일러전문", workerPhone: "010-4991-3302", amount: 520000, note: "배관 에어빼기와 순환펌프 점검 포함, 부품 교체 시 추가 설명드립니다." },
+      { id: createId(), workerName: "따뜻한집설비", workerPhone: "010-6577-1843", amount: 540000, note: "야간 긴급 점검 가능하며 온수 라인 테스트 장비 보유 중입니다." },
+      { id: createId(), workerName: "대전홈닥터", workerPhone: "010-2874-9156", amount: 550000, note: "보일러 제조사별 수리 경험이 많고 작업 후 1주 추적 점검 가능합니다." }
     ]
   }
 ];
 
 const demoWorkers = [
   {
-    id: crypto.randomUUID(),
+    id: createId(),
     category: "누수·방수",
     name: "튼튼집수리",
     phone: "010-7741-8820",
@@ -124,7 +133,7 @@ const demoWorkers = [
     images: []
   },
   {
-    id: crypto.randomUUID(),
+    id: createId(),
     category: "누수·방수",
     name: "맑은방수케어",
     phone: "010-5321-1184",
@@ -136,7 +145,7 @@ const demoWorkers = [
     images: []
   },
   {
-    id: crypto.randomUUID(),
+    id: createId(),
     category: "누수·방수",
     name: "안심누수119",
     phone: "010-2477-6631",
@@ -148,7 +157,7 @@ const demoWorkers = [
     images: []
   },
   {
-    id: crypto.randomUUID(),
+    id: createId(),
     category: "전기·조명",
     name: "우리집전기맨",
     phone: "010-9042-7510",
@@ -160,7 +169,7 @@ const demoWorkers = [
     images: []
   },
   {
-    id: crypto.randomUUID(),
+    id: createId(),
     category: "전기·조명",
     name: "밝은조명서비스",
     phone: "010-6752-3304",
@@ -172,7 +181,7 @@ const demoWorkers = [
     images: []
   },
   {
-    id: crypto.randomUUID(),
+    id: createId(),
     category: "전기·조명",
     name: "전기닥터24",
     phone: "010-4118-9026",
@@ -184,7 +193,7 @@ const demoWorkers = [
     images: []
   },
   {
-    id: crypto.randomUUID(),
+    id: createId(),
     category: "배관·설비",
     name: "공덕설비119",
     phone: "010-6618-7411",
@@ -196,7 +205,7 @@ const demoWorkers = [
     images: []
   },
   {
-    id: crypto.randomUUID(),
+    id: createId(),
     category: "배관·설비",
     name: "맑은배관서비스",
     phone: "010-3412-8840",
@@ -208,7 +217,7 @@ const demoWorkers = [
     images: []
   },
   {
-    id: crypto.randomUUID(),
+    id: createId(),
     category: "배관·설비",
     name: "우리동네설비팀",
     phone: "010-7188-2403",
@@ -220,7 +229,7 @@ const demoWorkers = [
     images: []
   },
   {
-    id: crypto.randomUUID(),
+    id: createId(),
     category: "도배·도장",
     name: "분당도배라인",
     phone: "010-2209-1045",
@@ -232,7 +241,7 @@ const demoWorkers = [
     images: []
   },
   {
-    id: crypto.randomUUID(),
+    id: createId(),
     category: "도배·도장",
     name: "깔끔도장하우스",
     phone: "010-2214-6012",
@@ -244,7 +253,7 @@ const demoWorkers = [
     images: []
   },
   {
-    id: crypto.randomUUID(),
+    id: createId(),
     category: "도배·도장",
     name: "하루도배팀",
     phone: "010-5528-4416",
@@ -256,7 +265,7 @@ const demoWorkers = [
     images: []
   },
   {
-    id: crypto.randomUUID(),
+    id: createId(),
     category: "목공·바닥재",
     name: "원목하우스팀",
     phone: "010-7144-1290",
@@ -268,7 +277,7 @@ const demoWorkers = [
     images: []
   },
   {
-    id: crypto.randomUUID(),
+    id: createId(),
     category: "목공·바닥재",
     name: "우리집목공소",
     phone: "010-2471-7814",
@@ -280,7 +289,7 @@ const demoWorkers = [
     images: []
   },
   {
-    id: crypto.randomUUID(),
+    id: createId(),
     category: "목공·바닥재",
     name: "바닥재리페어",
     phone: "010-9305-6612",
@@ -292,7 +301,7 @@ const demoWorkers = [
     images: []
   },
   {
-    id: crypto.randomUUID(),
+    id: createId(),
     category: "냉난방·보일러",
     name: "유성보일러전문",
     phone: "010-4991-3302",
@@ -304,7 +313,7 @@ const demoWorkers = [
     images: []
   },
   {
-    id: crypto.randomUUID(),
+    id: createId(),
     category: "냉난방·보일러",
     name: "따뜻한집설비",
     phone: "010-6577-1843",
@@ -316,7 +325,7 @@ const demoWorkers = [
     images: []
   },
   {
-    id: crypto.randomUUID(),
+    id: createId(),
     category: "냉난방·보일러",
     name: "한겨울보일러",
     phone: "010-8630-2294",
@@ -328,7 +337,7 @@ const demoWorkers = [
     images: []
   },
   {
-    id: crypto.randomUUID(),
+    id: createId(),
     category: "창호·새시",
     name: "송도창호케어",
     phone: "010-1187-5460",
@@ -340,7 +349,7 @@ const demoWorkers = [
     images: []
   },
   {
-    id: crypto.randomUUID(),
+    id: createId(),
     category: "창호·새시",
     name: "창문고침센터",
     phone: "010-6021-5518",
@@ -352,7 +361,7 @@ const demoWorkers = [
     images: []
   },
   {
-    id: crypto.randomUUID(),
+    id: createId(),
     category: "창호·새시",
     name: "미세방충망프로",
     phone: "010-8254-4039",
@@ -364,7 +373,7 @@ const demoWorkers = [
     images: []
   },
   {
-    id: crypto.randomUUID(),
+    id: createId(),
     category: "철거·리모델링",
     name: "바른철거리모델링",
     phone: "010-5104-9832",
@@ -376,7 +385,7 @@ const demoWorkers = [
     images: []
   },
   {
-    id: crypto.randomUUID(),
+    id: createId(),
     category: "철거·리모델링",
     name: "집새로공간",
     phone: "010-8422-3140",
@@ -388,7 +397,7 @@ const demoWorkers = [
     images: []
   },
   {
-    id: crypto.randomUUID(),
+    id: createId(),
     category: "철거·리모델링",
     name: "한번에리모델링",
     phone: "010-3619-2488",
@@ -768,7 +777,7 @@ async function handleCreateRequest(event) {
   const images = await readImagesFromInput(requestImagesInput);
 
   state.requests.unshift({
-    id: crypto.randomUUID(),
+    id: createId(),
     category: formData.get("category") || "기타",
     title: formData.get("title").trim(),
     location: formData.get("location").trim(),
@@ -796,7 +805,7 @@ async function handleCreateWorker(event) {
   const currentUser = getCurrentUser();
   const workerName = isRole("worker") ? currentUser.name : formData.get("name").trim();
   const workerPayload = {
-    id: crypto.randomUUID(),
+    id: createId(),
     category: formData.get("category"),
     name: workerName,
     phone: formData.get("phone").trim(),
@@ -839,10 +848,10 @@ async function handleCreateQuickRequest(event) {
   const formData = new FormData(event.currentTarget);
   const images = await readImagesFromInput(quickRequestImagesInput);
   const agreedAmount = Number(formData.get("agreedAmount"));
-  const bidId = crypto.randomUUID();
+  const bidId = createId();
 
   state.requests.unshift({
-    id: crypto.randomUUID(),
+    id: createId(),
     category: formData.get("category"),
     title: formData.get("title").trim(),
     location: formData.get("location").trim(),
@@ -1219,7 +1228,7 @@ function renderRequests() {
         event.preventDefault();
         const formData = new FormData(bidForm);
         request.bids.push({
-          id: crypto.randomUUID(),
+          id: createId(),
           workerName: formData.get("workerName").trim(),
           workerPhone: formData.get("workerPhone").trim(),
           amount: Number(formData.get("amount")),
