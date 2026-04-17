@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>집수리왕</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23c96b2c'/%3E%3Cpath d='M14 34 32 18l18 16v18H38V40H26v12H14V34Z' fill='%23fffaf2'/%3E%3Cpath d='M38 17h8v11' stroke='%23fffaf2' stroke-width='5' stroke-linecap='round' fill='none'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="./styles.css?v=20260417-2">
 </head>
 <body>
@@ -15,6 +16,7 @@
       </div>
       <div class="top-nav__menu" id="topNavMenu">
         <button type="button" class="nav-button" data-page="login">로그인</button>
+        <button type="button" class="nav-button" data-page="signup">회원가입</button>
         <button type="button" class="nav-button is-active" data-page="home">홈</button>
         <button type="button" class="nav-button" data-page="admin">관리자 메뉴</button>
         <button type="button" class="nav-button" data-page="requester">수리요청자 등록</button>
@@ -31,7 +33,7 @@
             <p class="section-label">로그인 메뉴</p>
             <h2>역할별 로그인</h2>
           </div>
-          <p class="admin-panel__lead">수리요청자와 공사작업자를 구분해서 로그인하고 각자 필요한 메뉴로 이동할 수 있습니다.</p>
+          <p class="admin-panel__lead">ID와 비밀번호로 로그인하면 계정 유형에 맞는 메뉴로 자동 이동합니다.</p>
         </div>
 
         <div class="login-role-tabs" id="loginRoleTabs">
@@ -42,24 +44,70 @@
         <form id="loginForm" class="request-form">
           <input type="hidden" name="role" id="loginRole" value="requester">
           <label>
-            이름
-            <input type="text" name="name" placeholder="예: 김민수 또는 튼튼집수리" required>
-          </label>
-          <label>
             로그인 ID
-            <input type="text" name="loginId" placeholder="예: requester01 / worker01" required>
+            <input type="text" name="loginId" required>
           </label>
           <label class="full">
             비밀번호
-            <input type="password" name="password" placeholder="예: 1234" required>
+            <input type="password" name="password" required>
           </label>
-          <div class="login-guide full">
-            <strong>테스트 계정</strong>
-            <small>수리요청자: `requester01 / 1234` 또는 공사작업자: `worker01 / 1234`</small>
-          </div>
           <button type="submit" class="primary-button full">로그인</button>
         </form>
         <div id="loginMessage" class="login-message"></div>
+      </section>
+    </section>
+
+    <section class="page-section" data-page="signup">
+      <section class="panel login-panel">
+        <div class="panel__header">
+          <div>
+            <p class="section-label">회원가입</p>
+            <h2>새 계정 만들기</h2>
+          </div>
+          <p class="admin-panel__lead">수요자 또는 작업자로 가입한 뒤 로그인하면 각 역할에 맞는 기능을 사용할 수 있습니다.</p>
+        </div>
+
+        <form id="signupForm" class="request-form">
+          <label>
+            성명
+            <input type="text" name="name" placeholder="예: 홍길동 또는 홍길동설비" required>
+          </label>
+          <label>
+            생년월일
+            <input type="date" name="birthDate" required>
+          </label>
+          <label>
+            ID
+            <input type="text" name="loginId" placeholder="예: user01" required>
+          </label>
+          <label>
+            패스워드
+            <input type="password" name="password" placeholder="4자 이상" minlength="4" required>
+          </label>
+          <label class="full">
+            회원 구분
+            <select name="role" required>
+              <option value="">회원 구분 선택</option>
+              <option value="requester">수요자</option>
+              <option value="worker">작업자</option>
+            </select>
+          </label>
+          <fieldset class="full signup-category-field" id="signupCategoryField" hidden>
+            <legend>작업영역 선택 <span>최대 3개</span></legend>
+            <div class="signup-category-grid">
+              <label><input type="checkbox" name="categories" value="누수·방수"> 누수·방수</label>
+              <label><input type="checkbox" name="categories" value="전기·조명"> 전기·조명</label>
+              <label><input type="checkbox" name="categories" value="배관·설비"> 배관·설비</label>
+              <label><input type="checkbox" name="categories" value="도배·도장"> 도배·도장</label>
+              <label><input type="checkbox" name="categories" value="목공·바닥재"> 목공·바닥재</label>
+              <label><input type="checkbox" name="categories" value="냉난방·보일러"> 냉난방·보일러</label>
+              <label><input type="checkbox" name="categories" value="창호·새시"> 창호·새시</label>
+              <label><input type="checkbox" name="categories" value="철거·리모델링"> 철거·리모델링</label>
+            </div>
+          </fieldset>
+          <button type="submit" class="primary-button full">회원가입하기</button>
+        </form>
+        <div id="signupMessage" class="login-message"></div>
       </section>
     </section>
 
@@ -116,6 +164,7 @@
             </div>
           </div>
           <div id="selectedWorkerSummary" class="selected-worker-summary empty-state">왼쪽에서 분야와 작업자를 먼저 선택해 주세요.</div>
+          <div id="loginRequiredNotice" class="login-message login-required-notice"></div>
           <form id="quickRequestForm" class="request-form">
             <label>
               선택 분야
@@ -147,11 +196,11 @@
             </label>
             <label>
               희망 공사금액(원)
-              <input type="number" name="desiredAmount" min="0" step="10000" placeholder="예: 300000" required>
+              <input type="number" name="desiredAmount" min="0" step="1000" placeholder="예: 300000" required>
             </label>
             <label>
               합의 공사금액(원)
-              <input type="number" name="agreedAmount" min="0" step="10000" placeholder="예: 280000" required>
+              <input type="number" name="agreedAmount" min="0" step="1000" placeholder="예: 280000" required>
             </label>
             <label>
               희망 완료일
@@ -182,6 +231,54 @@
           <p class="admin-panel__lead">관리자가 전체 거래 현황을 한 줄씩 빠르게 확인하는 요약 화면입니다.</p>
         </div>
         <div id="adminSummary" class="admin-summary"></div>
+        <div class="admin-action-panel">
+          <div>
+            <strong>진행중 공정 종료 처리</strong>
+            <small id="adminCompleteNotice">낙찰, 공사중, 공사완료 상태의 공정을 지급완료로 일괄 처리합니다.</small>
+          </div>
+          <button type="button" class="primary-button" id="completeActiveJobsBtn">진행중 공정 지급완료 처리</button>
+        </div>
+
+        <div class="admin-directory-grid">
+          <section class="admin-directory">
+            <div class="admin-directory__header">
+              <div>
+                <h3>요청자 현황 조회</h3>
+                <p>가입 요청자와 요청, 입찰, 지급 현황을 모두 확인합니다.</p>
+              </div>
+            </div>
+            <div class="admin-table-wrap admin-table-wrap--directory">
+              <div class="admin-table admin-table--requesters admin-table--head">
+                <span>요청자</span>
+                <span>계정</span>
+                <span>요청 현황</span>
+                <span>진행 / 완료</span>
+                <span>예산 합계</span>
+              </div>
+              <div id="adminRequesterList" class="admin-status-list"></div>
+            </div>
+          </section>
+
+          <section class="admin-directory">
+            <div class="admin-directory__header">
+              <div>
+                <h3>작업자 현황 조회</h3>
+                <p>가입 작업자와 작업영역, 입찰, 낙찰, 완료 현황을 모두 확인합니다.</p>
+              </div>
+            </div>
+            <div class="admin-table-wrap admin-table-wrap--directory">
+              <div class="admin-table admin-table--workers admin-table--head">
+                <span>작업자</span>
+                <span>작업영역</span>
+                <span>연락 / 지역</span>
+                <span>입찰 / 낙찰</span>
+                <span>완료 현황</span>
+              </div>
+              <div id="adminWorkerList" class="admin-status-list"></div>
+            </div>
+          </section>
+        </div>
+
         <div class="admin-table-wrap">
           <div class="admin-table admin-table--head">
             <span>요청명</span>
@@ -403,7 +500,7 @@
         <form class="bid-form">
           <input type="text" name="workerName" placeholder="작업자 이름" required>
           <input type="text" name="workerPhone" placeholder="연락처" required>
-          <input type="number" name="amount" min="0" step="10000" placeholder="입찰 금액(원)" required>
+          <input type="number" name="amount" min="0" step="1000" placeholder="입찰 금액(원)" required>
           <input type="text" name="note" placeholder="작업 조건 또는 강점" required>
           <button type="submit" class="primary-button">입찰하기</button>
         </form>
@@ -467,6 +564,6 @@
     </article>
   </template>
 
-  <script src="./app.js?v=20260417-2"></script>
+  <script src="./app.js?v=20260417-3"></script>
 </body>
 </html>
