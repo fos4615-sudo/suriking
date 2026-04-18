@@ -17,8 +17,7 @@
   const escapeHtml = (value) => String(value || "")
     .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "")
     .slice(0, MAX_TEXT_LENGTH)
-    .replace(/[&<>"']/g, (char) => ({
-      "&": "&amp;",
+    .replace(/[<>"']/g, (char) => ({
       "<": "&lt;",
       ">": "&gt;",
       '"': "&quot;",
