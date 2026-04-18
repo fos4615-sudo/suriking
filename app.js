@@ -6,8 +6,18 @@
     button.hidden = true;
     document.body.appendChild(button);
   }
-  const script = document.createElement("script");
-  script.src = "./app-core.js?v=20260418-restore";
-  script.defer = true;
-  document.head.appendChild(script);
+  const loadScript = (src) => new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = src;
+    script.defer = true;
+    script.onload = resolve;
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+  loadScript("./app-core.js?v=20260418-restore")
+    .then(() => loadScript("./app-detail.js?v=20260418-detail-1"))
+    .catch((error) => {
+      document.body.textContent = "앱을 불러오지 못했습니다. " + error.message;
+      console.error(error);
+    });
 })();
