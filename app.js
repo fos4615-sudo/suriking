@@ -38,7 +38,7 @@
     });
     upsertMeta('meta[property="og:image"]', {
       property: "og:image",
-      content: "https://suriking.kr/assets/og-image.png"
+      content: "https://suriking.kr/assets/og-image.svg"
     });
   };
   const version = "20260418-2";
