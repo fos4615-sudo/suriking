@@ -70,7 +70,7 @@
         <form id="signupForm" class="request-form">
           <label>
             성명
-            <input type="text" name="name" placeholder="예: 홍길동 또는 홍길동설비" required>
+            <input type="text" name="name" placeholder="성명 또는 업체명" required>
           </label>
           <label>
             생년월일
@@ -78,7 +78,7 @@
           </label>
           <label>
             ID
-            <input type="text" name="loginId" placeholder="예: user01" required>
+            <input type="text" name="loginId" placeholder="사용할 ID" required>
           </label>
           <label>
             패스워드
@@ -118,7 +118,7 @@
           <h1>집수리왕</h1>
           <p class="hero__lead">
             수리요청자가 수리 요청과 희망 예산을 등록하면 여러 공사작업자가 입찰하고,
-            수리요청자가 직접 낙찰자를 선택한 뒤 공사 진행 상태를 확인하며 대금을 지급하는 플랫폼입니다.
+            수리요청자가 직접 낙찰자를 선택한 뒤 공사 진행 상태와 협의 내용을 확인하며 거래를 마무리하는 플랫폼입니다.
           </p>
           <div class="hero__stats" id="summaryCards"></div>
         </div>
@@ -129,7 +129,8 @@
             <li>공사작업자들이 입찰가와 작업 조건 제안</li>
             <li>수리요청자가 작업자를 선택해 낙찰 확정</li>
             <li>요청, 낙찰, 공사중, 공사완료 단계별 확인</li>
-            <li>최종 확인 후 작업자에게 대금 지급 처리</li>
+            <li>낙찰 후 요청자와 작업자가 채팅으로 일정과 완료 내용을 협의</li>
+            <li>공사완료 후 대금지불은 요청자와 작업자가 협의하여 지급</li>
           </ol>
         </div>
       </header>
@@ -180,7 +181,7 @@
             </label>
             <label>
               수리요청자 이름
-              <input type="text" name="requester" placeholder="예: 김민수" required>
+              <input type="text" name="requester" placeholder="요청자 성명" required>
             </label>
             <label>
               요청 제목
@@ -196,11 +197,11 @@
             </label>
             <label>
               희망 공사금액(원)
-              <input type="number" name="desiredAmount" min="0" step="1000" placeholder="예: 300000" required>
+              <input type="text" name="desiredAmount" inputmode="numeric" data-money-input placeholder="예: 300,000" required>
             </label>
             <label>
               합의 공사금액(원)
-              <input type="number" name="agreedAmount" min="0" step="1000" placeholder="예: 280000" required>
+              <input type="text" name="agreedAmount" inputmode="numeric" data-money-input placeholder="예: 280,000" required>
             </label>
             <label>
               희망 완료일
@@ -333,7 +334,7 @@
           </label>
           <label>
             지급 가능 예산(원)
-            <input type="number" name="budget" min="0" step="10000" placeholder="예: 350000" required>
+            <input type="text" name="budget" inputmode="numeric" data-money-input placeholder="예: 350,000" required>
           </label>
           <label>
             희망 완료일
@@ -341,7 +342,7 @@
           </label>
           <label>
             수리요청자 이름
-            <input type="text" name="requester" placeholder="예: 김민수" required>
+            <input type="text" name="requester" placeholder="요청자 성명" required>
           </label>
           <label class="full">
             요청 사진 최대 2장
@@ -366,7 +367,7 @@
           <form id="workerForm" class="request-form">
             <label>
               작업자 이름
-              <input type="text" name="name" placeholder="예: 튼튼집수리" required>
+              <input type="text" name="name" placeholder="작업자 또는 업체명" required>
             </label>
             <label>
               연락처
@@ -485,6 +486,8 @@
 
       <div class="request-images"></div>
 
+      <div class="stage-progress" aria-label="작업 진행 단계"></div>
+
       <div class="request-card__actions">
         <div class="workflow-box"></div>
         <div class="approval-box"></div>
@@ -500,7 +503,7 @@
         <form class="bid-form">
           <input type="text" name="workerName" placeholder="작업자 이름" required>
           <input type="text" name="workerPhone" placeholder="연락처" required>
-          <input type="number" name="amount" min="0" step="1000" placeholder="입찰 금액(원)" required>
+          <input type="text" name="amount" inputmode="numeric" data-money-input placeholder="입찰 금액(원)" required>
           <input type="text" name="note" placeholder="작업 조건 또는 강점" required>
           <button type="submit" class="primary-button">입찰하기</button>
         </form>
@@ -512,6 +515,14 @@
           <p class="award-caption"></p>
         </div>
         <div class="bid-list"></div>
+      </div>
+
+      <div class="subpanel chat-panel">
+        <div class="subpanel__header">
+          <h4>낙찰 후 채팅</h4>
+          <p class="chat-caption"></p>
+        </div>
+        <div class="chat-box"></div>
       </div>
     </article>
   </template>
@@ -564,6 +575,6 @@
     </article>
   </template>
 
-  <script src="./app.js?v=20260417-3"></script>
+  <script src="./app.js?v=20260418-1"></script>
 </body>
 </html>
