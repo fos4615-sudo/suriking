@@ -302,7 +302,6 @@
             <p class="section-label">수리요청자 등록</p>
             <h2>수리 요청 올리기</h2>
           </div>
-          <button id="seedDemoBtn" class="ghost-button">데모 데이터 다시 불러오기</button>
         </div>
 
         <form id="requestForm" class="request-form">
@@ -371,7 +370,7 @@
             </label>
             <label>
               연락처
-              <input type="text" name="phone" placeholder="예: 010-1234-5678" required>
+              <input type="text" name="phone" value="999-9999-9999" readonly required>
             </label>
             <label>
               분야 분류
@@ -502,7 +501,7 @@
         <div class="awarded-summary"></div>
         <form class="bid-form">
           <input type="text" name="workerName" placeholder="작업자 이름" required>
-          <input type="text" name="workerPhone" placeholder="연락처" required>
+          <input type="text" name="workerPhone" value="999-9999-9999" readonly required>
           <input type="text" name="amount" inputmode="numeric" data-money-input placeholder="입찰 금액(원)" required>
           <input type="text" name="note" placeholder="작업 조건 또는 강점" required>
           <button type="submit" class="primary-button">입찰하기</button>
