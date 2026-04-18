@@ -619,7 +619,7 @@ select {
 .subpanel__header,
 .request-card__top,
 .request-card__actions,
-.bid-item__main,
+bid-item__main,
 .bid-item__actions,
 .request-card__meta,
 .bid-item__title-row {
@@ -665,6 +665,34 @@ select {
   margin-top: 6px;
   color: var(--muted);
   line-height: 1.6;
+}
+
+.completion-upload,
+.completion-proof {
+  display: grid;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(255, 251, 244, 0.92);
+  border: 1px solid rgba(98, 77, 47, 0.1);
+}
+
+.completion-upload label,
+.completion-proof strong {
+  display: grid;
+  gap: 8px;
+  font-weight: 800;
+}
+
+.completion-upload small {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.completion-images {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
 }
 
 .request-form,
@@ -867,7 +895,7 @@ select:focus {
 
 .approval-pending strong,
 .approval-pending small,
-approval-complete strong,
+.approval-complete strong,
 .approval-complete small {
   display: block;
 }
@@ -934,6 +962,90 @@ approval-complete strong,
   border-radius: 24px;
   background: var(--surface-strong);
   border: 1px solid rgba(98, 77, 47, 0.12);
+}
+
+.stage-progress {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(92px, 1fr));
+  gap: 10px;
+  margin-top: 18px;
+  padding: 16px;
+  border-radius: 20px;
+  background: rgba(255, 251, 244, 0.92);
+  border: 1px solid rgba(98, 77, 47, 0.1);
+}
+
+.stage-progress__item {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  min-width: 0;
+  text-align: center;
+}
+
+.stage-progress__connector {
+  position: absolute;
+  top: 22px;
+  right: calc(50% + 24px);
+  width: calc(100% - 10px);
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(98, 77, 47, 0.14);
+}
+
+.stage-progress__connector.is-complete {
+  background: rgba(35, 122, 87, 0.5);
+}
+
+.stage-progress__icon {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 2px solid rgba(98, 77, 47, 0.12);
+  background: #fff;
+  font-size: 1.25rem;
+  box-shadow: 0 8px 18px rgba(36, 25, 14, 0.08);
+}
+
+.stage-progress__label {
+  font-weight: 900;
+  overflow-wrap: anywhere;
+}
+
+.stage-progress__item small {
+  color: var(--muted);
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.stage-progress__item.is-complete .stage-progress__icon {
+  background: rgba(35, 122, 87, 0.14);
+  border-color: rgba(35, 122, 87, 0.38);
+}
+
+.stage-progress__item.is-complete .stage-progress__label {
+  color: var(--green);
+}
+
+.stage-progress__item.is-current .stage-progress__icon {
+  background: rgba(37, 99, 235, 0.14);
+  border-color: rgba(37, 99, 235, 0.42);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.18);
+}
+
+.stage-progress__item.is-current .stage-progress__label {
+  color: var(--blue);
+}
+
+.stage-progress__item.is-pending {
+  opacity: 0.62;
 }
 
 .request-title {
@@ -1053,6 +1165,70 @@ approval-complete strong,
   margin-top: 16px;
 }
 
+.chat-panel[hidden] {
+  display: none;
+}
+
+.chat-box {
+  display: grid;
+  gap: 14px;
+}
+
+.chat-message-list {
+  display: grid;
+  gap: 10px;
+  max-height: 320px;
+  overflow: auto;
+  padding: 4px;
+}
+
+.chat-message {
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(98, 77, 47, 0.1);
+}
+
+.chat-message.is-mine {
+  background: rgba(35, 122, 87, 0.08);
+  border-color: rgba(35, 122, 87, 0.22);
+}
+
+.chat-message__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.chat-message__meta strong,
+.chat-message p {
+  overflow-wrap: anywhere;
+}
+
+.chat-message__meta small {
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.chat-message p {
+  margin: 8px 0 0;
+  line-height: 1.65;
+  color: var(--ink);
+}
+
+.chat-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: stretch;
+}
+
+.chat-form textarea {
+  min-width: 0;
+  resize: vertical;
+}
+
 .bid-item {
   padding: 16px;
   border-radius: 18px;
@@ -1111,13 +1287,18 @@ approval-complete strong,
     overflow-x: auto;
   }
 
-  .admin-table {
-    min-width: 980px;
-  }
+	  .admin-table {
+	    min-width: 980px;
+	  }
 
-  .request-card__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+	  .stage-progress {
+	    grid-template-columns: repeat(5, minmax(76px, 1fr));
+	    overflow-x: auto;
+	  }
+
+	  .request-card__grid {
+	    grid-template-columns: repeat(2, minmax(0, 1fr));
+	  }
 }
 
 @media (max-width: 720px) {
@@ -1144,14 +1325,36 @@ approval-complete strong,
   .admin-directory-grid,
   .category-grid,
   .image-preview-grid,
-  .request-images,
-  .worker-images,
-  .worker-card__grid,
-  .request-card__grid,
-  .request-form,
-  .bid-form {
-    grid-template-columns: 1fr;
-  }
+	  .request-images,
+	  .worker-images,
+	  .completion-images,
+	  .worker-card__grid,
+	  .request-card__grid,
+	  .stage-progress,
+	  .request-form,
+	  .bid-form,
+	  .chat-form {
+	    grid-template-columns: 1fr;
+	  }
+
+	  .stage-progress__item {
+	    grid-template-columns: 48px minmax(0, 1fr);
+	    justify-items: start;
+	    text-align: left;
+	  }
+
+	  .stage-progress__item small {
+	    grid-column: 2;
+	  }
+
+	  .stage-progress__connector {
+	    top: auto;
+	    left: 22px;
+	    right: auto;
+	    bottom: calc(50% + 24px);
+	    width: 4px;
+	    height: calc(100% - 4px);
+	  }
 
   .request-card__top,
   .worker-card__top,
@@ -1160,10 +1363,11 @@ approval-complete strong,
   .bid-item__main,
   .admin-action-panel,
   .panel__header,
-  .subpanel__header,
-  .admin-panel__header {
-    flex-direction: column;
-    align-items: flex-start;
+	  .subpanel__header,
+	  .chat-message__meta,
+	  .admin-panel__header {
+	    flex-direction: column;
+	    align-items: flex-start;
   }
 
   .request-card__price {
