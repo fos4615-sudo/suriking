@@ -100,12 +100,19 @@ alter table public.app_state enable row level security;
 
 -- 임시 필드테스트 단계 정책: anon key로 CRUD 허용.
 -- 실제 운영 전에는 반드시 로그인 세션 기반 정책으로 좁혀야 합니다.
-create policy if not exists "field test profiles all" on public.profiles for all using (true) with check (true);
-create policy if not exists "field test workers all" on public.workers for all using (true) with check (true);
-create policy if not exists "field test requests all" on public.repair_requests for all using (true) with check (true);
-create policy if not exists "field test bids all" on public.bids for all using (true) with check (true);
-create policy if not exists "field test chat all" on public.chat_messages for all using (true) with check (true);
-create policy if not exists "field test app state all" on public.app_state for all using (true) with check (true);
+drop policy if exists "field test profiles all" on public.profiles;
+drop policy if exists "field test workers all" on public.workers;
+drop policy if exists "field test requests all" on public.repair_requests;
+drop policy if exists "field test bids all" on public.bids;
+drop policy if exists "field test chat all" on public.chat_messages;
+drop policy if exists "field test app state all" on public.app_state;
+
+create policy "field test profiles all" on public.profiles for all using (true) with check (true);
+create policy "field test workers all" on public.workers for all using (true) with check (true);
+create policy "field test requests all" on public.repair_requests for all using (true) with check (true);
+create policy "field test bids all" on public.bids for all using (true) with check (true);
+create policy "field test chat all" on public.chat_messages for all using (true) with check (true);
+create policy "field test app state all" on public.app_state for all using (true) with check (true);
 
 insert into public.app_state (id, payload)
 values ('live', '{"version":1,"requests":[],"workers":[],"accounts":[]}'::jsonb)
