@@ -14,7 +14,8 @@
     script.onerror = reject;
     document.head.appendChild(script);
   });
-  loadScript("./app-core.js?v=20260418-restore")
+  loadScript("./security-hardening.js?v=20260418-1")
+    .then(() => loadScript("./app-core.js?v=20260418-restore"))
     .then(() => loadScript("./app-detail.js?v=20260418-detail-1"))
     .catch((error) => {
       document.body.textContent = "앱을 불러오지 못했습니다. " + error.message;
