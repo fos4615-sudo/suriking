@@ -41,16 +41,16 @@
   }
 
   async function loadRemote() {
-    const rows = await request(`/rest/v1/app_state?id=eq.${encodeURIComponent(STATE_ID)}&select=payload`);
-    const payload = Array.isArray(rows) && rows[0] ? rows[0].payload : null;
+    const payload = await loadRemotePayload();
     if (!hasPayload(payload)) {
       return;
     }
 
+    const mergedPayload = mergePayloads(payload, getPayload());
     isApplyingRemote = true;
-    localStorage.setItem(REQUEST_KEY, JSON.stringify(payload.requests || []));
-    localStorage.setItem(WORKER_KEY, JSON.stringify(payload.workers || []));
-    localStorage.setItem(ACCOUNT_KEY, JSON.stringify(payload.accounts || []));
+    localStorage.setItem(REQUEST_KEY, JSON.stringify(mergedPayload.requests || []));
+    localStorage.setItem(WORKER_KEY, JSON.stringify(mergedPayload.workers || []));
+    localStorage.setItem(ACCOUNT_KEY, JSON.stringify(mergedPayload.accounts || []));
     isApplyingRemote = false;
   }
 
@@ -64,6 +64,71 @@
     };
   }
 
+  function mergePayloads(remotePayload, localPayload) {
+    const remote = hasPayload(remotePayload) ? remotePayload : {};
+    const local = hasPayload(localPayload) ? localPayload : {};
+    return {
+      version: 1,
+      updatedAt: new Date().toISOString(),
+      requests: mergeRequests(remote.requests, local.requests),
+      workers: mergeByIdentity(remote.workers, local.workers, getWorkerKey),
+      accounts: mergeByIdentity(remote.accounts, local.accounts, getAccountKey)
+    };
+  }
+
+  function mergeRequests(remoteRequests, localRequests) {
+    return mergeByIdentity(remoteRequests, localRequests, getRequestKey, mergeRequest);
+  }
+
+  function mergeRequest(remoteRequest, localRequest) {
+    return {
+      ...remoteRequest,
+      ...localRequest,
+      bids: mergeByIdentity(remoteRequest?.bids, localRequest?.bids, getBidKey),
+      chats: mergeByIdentity(remoteRequest?.chats, localRequest?.chats, getChatKey),
+      completionImages: mergePrimitiveList(remoteRequest?.completionImages, localRequest?.completionImages),
+      images: mergePrimitiveList(remoteRequest?.images, localRequest?.images)
+    };
+  }
+
+  function mergeByIdentity(remoteItems, localItems, keyGetter, mergeItem = (remoteItem, localItem) => ({ ...remoteItem, ...localItem })) {
+    const merged = new Map();
+    [...toArray(remoteItems), ...toArray(localItems)].forEach((item) => {
+      const key = keyGetter(item);
+      if (!key) return;
+      merged.set(key, merged.has(key) ? mergeItem(merged.get(key), item) : item);
+    });
+    return Array.from(merged.values());
+  }
+
+  function mergePrimitiveList(remoteItems, localItems) {
+    return Array.from(new Set([...toArray(remoteItems), ...toArray(localItems)].filter(Boolean)));
+  }
+
+  function toArray(value) {
+    return Array.isArray(value) ? value : [];
+  }
+
+  function getRequestKey(item) {
+    return item?.id || "";
+  }
+
+  function getWorkerKey(item) {
+    return item?.id || item?.name || "";
+  }
+
+  function getAccountKey(item) {
+    return item?.loginHash || `${item?.role || ""}:${item?.name || ""}`;
+  }
+
+  function getBidKey(item) {
+    return item?.id || `${item?.workerName || ""}:${item?.amount || ""}:${item?.note || ""}`;
+  }
+
+  function getChatKey(item) {
+    return item?.id || `${item?.createdAt || ""}:${item?.authorName || ""}:${item?.message || ""}`;
+  }
+
   function readStoredArray(key) {
     try {
       const value = parseStoredValue(localStorage.getItem(key));
@@ -74,14 +139,21 @@
   }
 
   async function saveRemote() {
+    const remotePayload = await loadRemotePayload();
+    const mergedPayload = mergePayloads(remotePayload, getPayload());
     await request("/rest/v1/app_state?on_conflict=id", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Prefer: "resolution=merge-duplicates,return=minimal"
       },
-      body: JSON.stringify([{ id: STATE_ID, payload: getPayload() }])
+      body: JSON.stringify([{ id: STATE_ID, payload: mergedPayload }])
     });
+  }
+
+  async function loadRemotePayload() {
+    const rows = await request(`/rest/v1/app_state?id=eq.${encodeURIComponent(STATE_ID)}&select=payload`);
+    return Array.isArray(rows) && rows[0] ? rows[0].payload : null;
   }
 
   function scheduleSave(key) {
