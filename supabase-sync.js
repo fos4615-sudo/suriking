@@ -63,7 +63,7 @@
     return {
       version: 1,
       updatedAt: new Date().toISOString(),
-      requests: mergeRequests(remote.requests, local.requests),
+      requests: sortRequestsNewestFirst(mergeRequests(remote.requests, local.requests).map(ensureRequestCreatedAt)),
       workers: mergeByIdentity(remote.workers, local.workers, getWorkerKey),
       accounts: mergeByIdentity(remote.accounts, local.accounts, getAccountKey)
     };
@@ -100,6 +100,32 @@
 
   function compareCreatedAt(a, b) {
     return String(a?.createdAt || "").localeCompare(String(b?.createdAt || ""));
+  }
+
+  function sortRequestsNewestFirst(requests) {
+    return [...toArray(requests)].sort((a, b) => getRequestSortTime(b) - getRequestSortTime(a));
+  }
+
+  function ensureRequestCreatedAt(request) {
+    if (!request || request.createdAt) return request;
+    return { ...request, createdAt: inferRequestTime(request) || new Date().toISOString() };
+  }
+
+  function getRequestSortTime(request) {
+    const time = Date.parse(request?.createdAt || request?.updatedAt || "");
+    if (Number.isFinite(time)) return time;
+    const inferred = inferRequestTime(request);
+    const inferredTime = Date.parse(inferred || "");
+    return Number.isFinite(inferredTime) ? inferredTime : 0;
+  }
+
+  function inferRequestTime(request) {
+    const statusTime = request?.statusHistory?.[0]?.at;
+    if (statusTime) return statusTime;
+    const match = String(request?.id || "").match(/^(?:id|fieldtest)-([a-z0-9]+)/);
+    if (!match) return "";
+    const value = Number.parseInt(match[1], 36);
+    return Number.isFinite(value) ? new Date(value).toISOString() : "";
   }
 
   function mergeByIdentity(remoteItems, localItems, keyGetter, mergeItem = (remoteItem, localItem) => ({ ...remoteItem, ...localItem })) {
