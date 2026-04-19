@@ -41,7 +41,7 @@
       content: "https://suriking.kr/assets/og-image.svg"
     });
   };
-  const version = "20260419-db1";
+  const version = "20260419-db2";
   loadScript(`./supabase-config.js?v=${version}`)
     .then(() => loadScript(`./supabase-sync.js?v=${version}`))
     .then(() => globalThis.SURIKING_SUPABASE_READY || Promise.resolve())
