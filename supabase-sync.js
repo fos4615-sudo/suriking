@@ -42,9 +42,13 @@
   }
 
   async function loadRemote() {
-    const payload = await loadRemotePayload();
-    if (!hasPayload(payload)) return;
-    applyPayloadToLocalStorage(mergePayloads(payload, getPayload()));
+    const remotePayload = await loadRemotePayload();
+    if (!hasPayload(remotePayload)) return;
+    const mergedPayload = mergePayloads(remotePayload, getPayload());
+    applyPayloadToLocalStorage(mergedPayload);
+    if (shouldPersistMergedPayload(remotePayload, mergedPayload)) {
+      await persistPayload(mergedPayload);
+    }
   }
 
   function getPayload() {
@@ -178,15 +182,44 @@
   async function saveRemote() {
     const remotePayload = await loadRemotePayload();
     const mergedPayload = mergePayloads(remotePayload, getPayload());
+    await persistPayload(mergedPayload);
+    applyPayloadToLocalStorage(mergedPayload);
+  }
+
+  async function persistPayload(payload) {
     await request("/rest/v1/app_state?on_conflict=id", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Prefer: "resolution=merge-duplicates,return=minimal"
       },
-      body: JSON.stringify([{ id: STATE_ID, payload: mergedPayload }])
+      body: JSON.stringify([{ id: STATE_ID, payload }])
     });
-    applyPayloadToLocalStorage(mergedPayload);
+  }
+
+  function shouldPersistMergedPayload(remotePayload, mergedPayload) {
+    return getSignature(remotePayload) !== getSignature(mergedPayload);
+  }
+
+  function getSignature(payload) {
+    return JSON.stringify({
+      requests: toArray(payload?.requests).map(getRequestSignature),
+      workers: toArray(payload?.workers).map(getWorkerKey).sort(),
+      accounts: toArray(payload?.accounts).map(getAccountKey).sort()
+    });
+  }
+
+  function getRequestSignature(request) {
+    return {
+      id: request?.id || "",
+      status: request?.status || "",
+      awardedBidId: request?.awardedBidId || "",
+      customerConfirmed: Boolean(request?.customerConfirmed),
+      bids: toArray(request?.bids).map(getBidKey).sort(),
+      chatMessages: toArray(request?.chatMessages).map(getChatKey).sort(),
+      completionImages: toArray(request?.completionImages).length,
+      images: toArray(request?.images).length
+    };
   }
 
   async function loadRemotePayload() {
