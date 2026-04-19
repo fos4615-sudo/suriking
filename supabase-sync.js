@@ -7,9 +7,12 @@
   const SECURE_STORAGE_PREFIX = "jipsuriwang-secure-v1:";
   const SECURE_STORAGE_SECRET = "jipsuriwang-local-private-data-2026";
   const SYNC_KEYS = new Set([REQUEST_KEY, WORKER_KEY, ACCOUNT_KEY]);
+  const STATUS_ORDER = ["요청", "낙찰", "공사중", "공사완료", "입금완료"];
   const isEnabled = Boolean(CONFIG.url && CONFIG.anonKey);
   let saveTimer = null;
+  let pollTimer = null;
   let isApplyingRemote = false;
+  let lastLocalWriteAt = 0;
 
   function supabaseUrl(path) {
     return `${String(CONFIG.url).replace(/\/$/, "")}${path}`;
@@ -42,16 +45,8 @@
 
   async function loadRemote() {
     const payload = await loadRemotePayload();
-    if (!hasPayload(payload)) {
-      return;
-    }
-
-    const mergedPayload = mergePayloads(payload, getPayload());
-    isApplyingRemote = true;
-    localStorage.setItem(REQUEST_KEY, JSON.stringify(mergedPayload.requests || []));
-    localStorage.setItem(WORKER_KEY, JSON.stringify(mergedPayload.workers || []));
-    localStorage.setItem(ACCOUNT_KEY, JSON.stringify(mergedPayload.accounts || []));
-    isApplyingRemote = false;
+    if (!hasPayload(payload)) return;
+    applyPayloadToLocalStorage(mergePayloads(payload, getPayload()));
   }
 
   function getPayload() {
@@ -81,14 +76,32 @@
   }
 
   function mergeRequest(remoteRequest, localRequest) {
-    return {
+    const merged = {
       ...remoteRequest,
       ...localRequest,
+      status: pickMostAdvancedStatus(remoteRequest?.status, localRequest?.status),
+      customerConfirmed: Boolean(remoteRequest?.customerConfirmed || localRequest?.customerConfirmed),
+      awardedBidId: localRequest?.awardedBidId || remoteRequest?.awardedBidId || null,
       bids: mergeByIdentity(remoteRequest?.bids, localRequest?.bids, getBidKey),
-      chats: mergeByIdentity(remoteRequest?.chats, localRequest?.chats, getChatKey),
+      chatMessages: mergeByIdentity(remoteRequest?.chatMessages, localRequest?.chatMessages, getChatKey).sort(compareCreatedAt),
       completionImages: mergePrimitiveList(remoteRequest?.completionImages, localRequest?.completionImages),
       images: mergePrimitiveList(remoteRequest?.images, localRequest?.images)
     };
+    delete merged.chats;
+    return merged;
+  }
+
+  function pickMostAdvancedStatus(remoteStatus, localStatus) {
+    return statusRank(localStatus) > statusRank(remoteStatus) ? localStatus : (remoteStatus || localStatus || "요청");
+  }
+
+  function statusRank(status) {
+    const index = STATUS_ORDER.indexOf(status);
+    return index < 0 ? 0 : index;
+  }
+
+  function compareCreatedAt(a, b) {
+    return String(a?.createdAt || "").localeCompare(String(b?.createdAt || ""));
   }
 
   function mergeByIdentity(remoteItems, localItems, keyGetter, mergeItem = (remoteItem, localItem) => ({ ...remoteItem, ...localItem })) {
@@ -126,7 +139,7 @@
   }
 
   function getChatKey(item) {
-    return item?.id || `${item?.createdAt || ""}:${item?.authorName || ""}:${item?.message || ""}`;
+    return item?.id || `${item?.createdAt || ""}:${item?.authorName || ""}:${item?.text || item?.message || ""}`;
   }
 
   function readStoredArray(key) {
@@ -149,6 +162,7 @@
       },
       body: JSON.stringify([{ id: STATE_ID, payload: mergedPayload }])
     });
+    applyPayloadToLocalStorage(mergedPayload);
   }
 
   async function loadRemotePayload() {
@@ -156,10 +170,51 @@
     return Array.isArray(rows) && rows[0] ? rows[0].payload : null;
   }
 
-  function scheduleSave(key) {
-    if (!isEnabled || isApplyingRemote || !SYNC_KEYS.has(key)) {
-      return;
+  function applyPayloadToLocalStorage(payload) {
+    isApplyingRemote = true;
+    localStorage.setItem(REQUEST_KEY, JSON.stringify(payload.requests || []));
+    localStorage.setItem(WORKER_KEY, JSON.stringify(payload.workers || []));
+    localStorage.setItem(ACCOUNT_KEY, JSON.stringify(payload.accounts || []));
+    isApplyingRemote = false;
+  }
+
+  function payloadSignature(payload) {
+    return JSON.stringify({
+      requests: toArray(payload?.requests).map(normalizeRequestForSignature),
+      workers: toArray(payload?.workers),
+      accounts: toArray(payload?.accounts)
+    });
+  }
+
+  function normalizeRequestForSignature(request) {
+    return {
+      ...request,
+      chatMessages: toArray(request?.chatMessages).slice().sort(compareCreatedAt),
+      bids: toArray(request?.bids),
+      completionImages: toArray(request?.completionImages),
+      images: toArray(request?.images)
+    };
+  }
+
+  async function refreshFromRemoteIfChanged() {
+    if (!isEnabled || document.hidden || Date.now() - lastLocalWriteAt < 2500) return;
+    try {
+      const remotePayload = await loadRemotePayload();
+      if (!hasPayload(remotePayload)) return;
+      const localPayload = getPayload();
+      const mergedPayload = mergePayloads(remotePayload, localPayload);
+      if (payloadSignature(mergedPayload) !== payloadSignature(localPayload)) {
+        applyPayloadToLocalStorage(mergedPayload);
+        location.reload();
+      }
+    } catch (error) {
+      console.error("Supabase 자동 동기화 실패:", error);
     }
+  }
+
+  function scheduleSave(key) {
+    if (!isEnabled || isApplyingRemote || !SYNC_KEYS.has(key)) return;
+    lastLocalWriteAt = Date.now();
     clearTimeout(saveTimer);
     saveTimer = setTimeout(() => {
       saveRemote().catch((error) => console.error("Supabase 저장 실패:", error));
@@ -172,6 +227,11 @@
       originalSetItem(key, value);
       scheduleSave(key);
     };
+  }
+
+  function startPolling() {
+    if (!isEnabled || pollTimer) return;
+    pollTimer = setInterval(refreshFromRemoteIfChanged, 5000);
   }
 
   function parseStoredValue(saved) {
@@ -263,4 +323,5 @@
   globalThis.SURIKING_SUPABASE_READY = isEnabled
     ? loadRemote().catch((error) => console.error("Supabase 불러오기 실패:", error))
     : Promise.resolve();
+  globalThis.SURIKING_SUPABASE_READY.finally(startPolling);
 })();
