@@ -10,9 +10,7 @@
   const STATUS_ORDER = ["요청", "낙찰", "공사중", "공사완료", "입금완료"];
   const isEnabled = Boolean(CONFIG.url && CONFIG.anonKey);
   let saveTimer = null;
-  let pollTimer = null;
   let isApplyingRemote = false;
-  let lastLocalWriteAt = 0;
 
   function supabaseUrl(path) {
     return `${String(CONFIG.url).replace(/\/$/, "")}${path}`;
@@ -178,43 +176,8 @@
     isApplyingRemote = false;
   }
 
-  function payloadSignature(payload) {
-    return JSON.stringify({
-      requests: toArray(payload?.requests).map(normalizeRequestForSignature),
-      workers: toArray(payload?.workers),
-      accounts: toArray(payload?.accounts)
-    });
-  }
-
-  function normalizeRequestForSignature(request) {
-    return {
-      ...request,
-      chatMessages: toArray(request?.chatMessages).slice().sort(compareCreatedAt),
-      bids: toArray(request?.bids),
-      completionImages: toArray(request?.completionImages),
-      images: toArray(request?.images)
-    };
-  }
-
-  async function refreshFromRemoteIfChanged() {
-    if (!isEnabled || document.hidden || Date.now() - lastLocalWriteAt < 2500) return;
-    try {
-      const remotePayload = await loadRemotePayload();
-      if (!hasPayload(remotePayload)) return;
-      const localPayload = getPayload();
-      const mergedPayload = mergePayloads(remotePayload, localPayload);
-      if (payloadSignature(mergedPayload) !== payloadSignature(localPayload)) {
-        applyPayloadToLocalStorage(mergedPayload);
-        location.reload();
-      }
-    } catch (error) {
-      console.error("Supabase 자동 동기화 실패:", error);
-    }
-  }
-
   function scheduleSave(key) {
     if (!isEnabled || isApplyingRemote || !SYNC_KEYS.has(key)) return;
-    lastLocalWriteAt = Date.now();
     clearTimeout(saveTimer);
     saveTimer = setTimeout(() => {
       saveRemote().catch((error) => console.error("Supabase 저장 실패:", error));
@@ -227,11 +190,6 @@
       originalSetItem(key, value);
       scheduleSave(key);
     };
-  }
-
-  function startPolling() {
-    if (!isEnabled || pollTimer) return;
-    pollTimer = setInterval(refreshFromRemoteIfChanged, 5000);
   }
 
   function parseStoredValue(saved) {
@@ -323,5 +281,4 @@
   globalThis.SURIKING_SUPABASE_READY = isEnabled
     ? loadRemote().catch((error) => console.error("Supabase 불러오기 실패:", error))
     : Promise.resolve();
-  globalThis.SURIKING_SUPABASE_READY.finally(startPolling);
 })();
