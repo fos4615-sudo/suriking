@@ -41,13 +41,14 @@
       content: "https://suriking.kr/assets/og-image.svg"
     });
   };
-  const version = "20260419-sync3";
+  const version = "20260420-requestid1";
   loadScript(`./supabase-config.js?v=${version}`)
     .then(() => loadScript(`./supabase-sync.js?v=${version}`))
     .then(() => globalThis.SURIKING_SUPABASE_READY || Promise.resolve())
     .then(() => loadScript(`./security-hardening.js?v=${version}`))
-    .then(() => loadScript("./app-core.js?v=20260419-sync3"))
+    .then(() => loadScript("./app-core.js?v=20260420-requestid1"))
     .then(() => loadScript("./app-detail.js?v=20260418-detail-1"))
+    .then(() => loadScript(`./request-number-fix.js?v=${version}`))
     .then(applyPromoCopy)
     .catch((error) => {
       document.body.textContent = "앱을 불러오지 못했습니다. " + error.message;
