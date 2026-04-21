@@ -41,12 +41,13 @@
       content: "https://suriking.kr/assets/og-image.svg"
     });
   };
-  const version = "20260420-requestid1";
+  const version = "20260421-traffic1";
   loadScript(`./supabase-config.js?v=${version}`)
+    .then(() => loadScript(`./visitor-analytics.js?v=${version}`).catch((error) => console.error("방문자 통계 로드 실패:", error)))
     .then(() => loadScript(`./supabase-sync.js?v=${version}`))
     .then(() => globalThis.SURIKING_SUPABASE_READY || Promise.resolve())
     .then(() => loadScript(`./security-hardening.js?v=${version}`))
-    .then(() => loadScript("./app-core.js?v=20260420-requestid1"))
+    .then(() => loadScript("./app-core.js?v=20260421-traffic1"))
     .then(() => loadScript("./app-detail.js?v=20260418-detail-1"))
     .then(() => loadScript(`./request-number-fix.js?v=${version}`))
     .then(applyPromoCopy)
